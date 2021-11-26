@@ -35,15 +35,24 @@ public class Main {
         String jsonProvincias = "https://www.el-tiempo.net/api/json/v2/provincias";
         String jsonMunicipios = "https://www.el-tiempo.net/api/json/v2/municipios";
         String ficheroProvincias = "./json/provinciasAPI.json";
+        String ficheroMunicipios = "./json/municipiosAPI.json";
+        int filas = 0;
 
         try {
             System.out.println("Usando BD: " + rutaDB);
             System.out.println("Usando Json: " + jsonProvincias);
 
+            //Provincias
             DescargaProvincia p = new DescargaProvincia(rutaDB, jsonProvincias, ficheroProvincias);
-            int filas = p.guardarProvincias();
-
-            System.out.println("Se han insertado o modificado " + filas + " filas en la BD " + rutaDB);
+            filas = p.guardarProvincias();
+            System.out.println("PROVINCIAS: Se ha descargado de " + jsonProvincias 
+                    + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
+            
+            //Municipios
+            DescargaMunicipio m = new DescargaMunicipio(rutaDB,jsonMunicipios,ficheroMunicipios);
+            filas = m.guardarMunicipios();
+            System.out.println("MUNICIPIOS: Se ha descargado de " + jsonMunicipios 
+                    + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
 
         } catch (SQLException e) {
             System.out.println("Error SQL: " + e.getMessage());

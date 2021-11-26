@@ -2,6 +2,10 @@ package pronosticoTiempo;
 
 import java.io.*;
 import java.net.*;
+/**
+ * 
+ * @author user
+ */
 
 public class DescargaJson {
     
@@ -12,11 +16,23 @@ public class DescargaJson {
     private static HttpURLConnection conexion;
     
 
+    /**
+     * Extrae la información en json de la url dada y genera el fichero en rutaDestino
+     * 
+     * @param url URL con la informacion en json
+     * @param rutaDestino Archivo de destino en json
+     */
     public DescargaJson(String url, String rutaDestino) {
         this.urlAPI = url;
         this.rutaDestino = rutaDestino;
     }
     
+    /**
+     * 
+     * @return True si todo ha ido bien - False si se produce algun error
+     * @throws MalformedURLException
+     * @throws IOException 
+     */
     public boolean descarga() throws MalformedURLException, IOException{
         
         //Para empezar, creamos unas variables que nos permitan obtener la informacion 

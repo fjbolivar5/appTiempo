@@ -20,34 +20,33 @@ import org.json.simple.parser.ParseException;
  * @author Fran Bolivar
  */
 
-public class DescargaProvincia {
-    private String titulo;
+public class DescargaMunicipio {
+
     private String db;
     private Connection connect;
-    private String urlProvincias;
+    private String urlMunicipios;
     private String ficheroDestino;
 
     /* CONSTRUCTOR */
     /**
      * 
      * @param db ruta de la base de datos SQLite
-     * @param urlJson URL del archivo json con las provincias
+     * @param urlJson URL del archivo json con los municipios
      * @param destino ruta del archivo json de salida
      */
-    public DescargaProvincia(String db,String urlJson, String destino) {
+    public DescargaMunicipio(String db,String urlJson, String destino) {
         this.db = db;
-        this.urlProvincias = urlJson;
+        this.urlMunicipios = urlJson;
         this.ficheroDestino = destino;
-        this.titulo = "";
         connect = null;
     }
         
     
     /**
-     * Extrae la informacion del archivo json dado en el constructor con las provincias
+     * Extrae la informacion del archivo json dado en el constructor con los municipios
      * @return nº de registros insertados
      */
-    public int guardarProvincias() 
+    public int guardarMunicipios() 
             throws SQLException, FileNotFoundException, IOException, ParseException {
         
         JSONParser parser = new JSONParser();
@@ -55,7 +54,7 @@ public class DescargaProvincia {
         boolean exito=false;
         
         //Descarga y creacion del json
-        DescargaJson descargar = new DescargaJson(urlProvincias,ficheroDestino);
+        DescargaJson descargar = new DescargaJson(urlMunicipios,ficheroDestino);
         exito=descargar.descarga();
    
         if(exito){
@@ -63,35 +62,30 @@ public class DescargaProvincia {
 
             JSONObject jsonObject =  (JSONObject) obj;
 
-            titulo = (String) jsonObject.get("title");
-
-            JSONArray provincias = (JSONArray) jsonObject.get("provincias");
-            Iterator<JSONObject> iterator = provincias.iterator();
+            JSONArray municipios = (JSONArray) jsonObject.get("");
+            Iterator<JSONObject> iterator = municipios.iterator();
             //Inicio la conexion con la base de datos
             connect = DriverManager.getConnection("jdbc:sqlite:"+db);
             if(connect!=null){
                 while (iterator.hasNext()) {
-                    JSONObject provincia = iterator.next();
+                    JSONObject municipio = iterator.next();
 
-                    String cod_prov = (String)provincia.get("CODPROV");
-                    String nombre = (String)provincia.get("NOMBRE_PROVINCIA");
-                    String cod_auton = (String)provincia.get("CODAUTON");               
-                    String comunidad = (String)provincia.get("COMUNIDAD_CIUDAD_AUTONOMA");
-                    String capital = (String)provincia.get("CAPITAL_PROVINCIA");
+                    String cod_mun = (String)municipio.get("COD_GEO");
+                    String nombre = (String)municipio.get("NOMBRE");
+                    String longitud = (String)municipio.get("LONGITUD_ETRS89_REGCAN95");               
+                    String latitud = (String)municipio.get("LATITUD_ETRS89_REGCAN95");
+                    String altitud = (String)municipio.get("ALTITUD");
+                    String cod_prov = (String)municipio.get("CODPROV");
 
-                    String sql = "INSERT OR REPLACE INTO provincias ('codprov','nombre','codauton','comunidad','capital') "
-                            + "VALUES (?, ?, ?, ?, ?)";
+                    String sql = "INSERT OR REPLACE INTO municipios ('codgeo','nombre','longitud','latitud','altitud','codprov') "
+                            + "VALUES (?, ?, ?, ?, ?,?)";
                     PreparedStatement statement = connect.prepareStatement(sql);
-                    statement.setInt(1, Integer.valueOf(cod_prov));
+                    statement.setInt(1, Integer.valueOf(cod_mun));
                     statement.setString(2, nombre);
-                    statement.setString(3, cod_auton);
-                    statement.setString(4,comunidad);
-                    statement.setString(5, capital);
-
-                    /* PARA DEPURAR
-                    System.out.printf("Prov: %s - Nombre: %s - Capital: %s - Comunidad: %s - Cod. Com: %s\n", 
-                                        cod_prov,nombre,capital,comunidad,cod_auton);
-                    */
+                    statement.setString(3, longitud);
+                    statement.setString(4, latitud);
+                    statement.setInt(5, Integer.valueOf(altitud));
+                    statement.setInt(6, Integer.valueOf(cod_prov));
 
                     filas += statement.executeUpdate();
                 }
