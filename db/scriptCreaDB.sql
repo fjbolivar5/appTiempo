@@ -9,9 +9,9 @@ create table provincias(
 create table municipios(
     codgeo int primary key,
     nombre varchar,
-    longitud varchar,
-    latitud varchar,
-    altitud int,
+    longitud decimal,
+    latitud decimal,
+    altitud decimal,
     codprov int,
     foreign key(codprov) references provincias(codprov)
 );

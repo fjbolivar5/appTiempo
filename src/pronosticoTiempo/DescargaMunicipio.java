@@ -1,11 +1,14 @@
 
 package pronosticoTiempo;
 
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
@@ -56,13 +59,32 @@ public class DescargaMunicipio {
         //Descarga y creacion del json
         DescargaJson descargar = new DescargaJson(urlMunicipios,ficheroDestino);
         exito=descargar.descarga();
-   
+        
         if(exito){
+            //Doy el formato correcto al archivo descargardo
+            BufferedReader fr = new BufferedReader(new FileReader(ficheroDestino));
+            StringBuffer sBuffer = new StringBuffer("{\"municipios\":");
+            //Inicio la variable 'linea' con el contenido que hay que añadir al principio al archivo municipios
+            String linea="";
+            //sBuffer.append("{\"municipios\":[");
+            while((linea=fr.readLine())!=null){
+                sBuffer.append(linea);
+            }
+            //Añado a 'sBuffer' lo necesario en el final del archivo
+            sBuffer.append("}");
+            fr.close();
+            
+            //Sobreescribo el fichero con los datos modificados.
+            BufferedWriter fw = new BufferedWriter (new FileWriter(ficheroDestino));
+            fw.write(sBuffer.toString());
+            fw.close();
+                        
+            //Comienza la lectura del Json para su inserccion en la BD
             Object obj = parser.parse(new FileReader(ficheroDestino));
 
             JSONObject jsonObject =  (JSONObject) obj;
 
-            JSONArray municipios = (JSONArray) jsonObject.get("");
+            JSONArray municipios = (JSONArray) jsonObject.get("municipios");
             Iterator<JSONObject> iterator = municipios.iterator();
             //Inicio la conexion con la base de datos
             connect = DriverManager.getConnection("jdbc:sqlite:"+db);
@@ -72,20 +94,18 @@ public class DescargaMunicipio {
 
                     String cod_mun = (String)municipio.get("COD_GEO");
                     String nombre = (String)municipio.get("NOMBRE");
-                    String longitud = (String)municipio.get("LONGITUD_ETRS89_REGCAN95");               
-                    String latitud = (String)municipio.get("LATITUD_ETRS89_REGCAN95");
-                    String altitud = (String)municipio.get("ALTITUD");
+                    double longitud = (double)municipio.get("LONGITUD_ETRS89_REGCAN95");               
+                    double latitud = (double)municipio.get("LATITUD_ETRS89_REGCAN95");
                     String cod_prov = (String)municipio.get("CODPROV");
 
-                    String sql = "INSERT OR REPLACE INTO municipios ('codgeo','nombre','longitud','latitud','altitud','codprov') "
-                            + "VALUES (?, ?, ?, ?, ?,?)";
+                    String sql = "INSERT OR REPLACE INTO municipios ('codgeo','nombre','longitud','latitud','codprov') "
+                            + "VALUES (?, ?, ?, ?, ?)";
                     PreparedStatement statement = connect.prepareStatement(sql);
                     statement.setInt(1, Integer.valueOf(cod_mun));
                     statement.setString(2, nombre);
-                    statement.setString(3, longitud);
-                    statement.setString(4, latitud);
-                    statement.setInt(5, Integer.valueOf(altitud));
-                    statement.setInt(6, Integer.valueOf(cod_prov));
+                    statement.setDouble(3, longitud);
+                    statement.setDouble(4, latitud);
+                    statement.setInt(5, Integer.valueOf(cod_prov));
 
                     filas += statement.executeUpdate();
                 }

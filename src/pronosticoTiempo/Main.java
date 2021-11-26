@@ -40,7 +40,6 @@ public class Main {
 
         try {
             System.out.println("Usando BD: " + rutaDB);
-            System.out.println("Usando Json: " + jsonProvincias);
 
             //Provincias
             DescargaProvincia p = new DescargaProvincia(rutaDB, jsonProvincias, ficheroProvincias);

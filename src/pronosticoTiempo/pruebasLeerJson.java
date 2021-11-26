@@ -24,13 +24,13 @@ public class pruebasLeerJson  {
 
         JSONObject jsonObject =  (JSONObject) obj;
 
-        JSONArray municipios = (JSONArray) jsonObject.get("");
+        JSONArray municipios = (JSONArray) jsonObject.get("municipios");
         Iterator<JSONObject> iterator = municipios.iterator();
 
         while (iterator.hasNext()) {
             JSONObject municipio = iterator.next();
 
-            //String cod_mun = (String)municipio.get("COD_GEO");
+            String cod_mun = (String)municipio.get("COD_GEO");
             String nombre = (String)municipio.get("NOMBRE");
             /*
             String longitud = (String)municipio.get("LONGITUD_ETRS89_REGCAN95");               
@@ -39,7 +39,7 @@ public class pruebasLeerJson  {
             String cod_prov = (String)municipio.get("CODPROV");
             */
 
-            System.out.printf("Cod: %d - Nombre: %s",/*cod_mun,*/nombre);
+            System.out.printf("Cod: %s - Nombre: %s\n",cod_mun,nombre);
 
         }
     }
