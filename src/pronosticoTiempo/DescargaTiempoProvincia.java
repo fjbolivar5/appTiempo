@@ -80,7 +80,7 @@ public class DescargaTiempoProvincia {
             //Creo la url para descargar el Json
             String url = urlProvincias.concat(String.valueOf(provincia));
             //Descarga y creacion del json
-            String ficheroProv = ficheroDestino.concat(String.valueOf(provincia)+".json");
+            String ficheroProv = ficheroDestino.concat("_" + provincia +".json");
             DescargaJson descargar = new DescargaJson(url,ficheroProv);
             exito=descargar.descarga();
 

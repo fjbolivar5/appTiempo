@@ -55,10 +55,9 @@ public class DescargaTiempoMunicipio {
         JSONParser parser = new JSONParser();
         int filas = 0;
         List<String> codProv = new ArrayList<String>();
-        List<String> codMuni = new ArrayList<String>();
 
-        //Es necesario conocer el código de la provincia y el código del municipio a descargar
-        //Lo extraemos de la BD, de la tabla provincias y municipios
+        //Es necesario conocer el código de la provincia a descargar
+        //Lo extraemos de la BD, de la tabla provincias
         connect = DriverManager.getConnection("jdbc:sqlite:" + db); //Conectamos a la bd
         String sql_prov = "SELECT codprov FROM provincias";
         Statement consulta = connect.createStatement();
@@ -69,16 +68,6 @@ public class DescargaTiempoMunicipio {
                 codProv.add(rs.getString(1));
             }           
         }
-        //Extraemos los codigos de los municipios
-        ejecuta = false;
-        String sql_muni = "SELECT codmuni FROM municipios";
-        ejecuta = consulta.execute(sql_muni);
-        if(ejecuta){
-            ResultSet rs = consulta.getResultSet();
-            while(rs.next()){
-                codMuni.add(rs.getString(1));
-            }           
-        }
         
         //Cerramos la conexion con la BD
         connect.close();
@@ -86,11 +75,30 @@ public class DescargaTiempoMunicipio {
         boolean exito=false;
         for(String provincia: codProv){
             
+            List<String> codMuni = new ArrayList<String>(); //ArrayList para los municipios de cada provincia
+            
+            //Para descargar la info de los municipios de cada provincia,
+            //necesitamos tener los codigos de municipios de diche provincia.
+            //Los descargamos de la tabla municipios
+            connect = DriverManager.getConnection("jdbc:sqlite:" + db); //Conectamos a la bd
+            ejecuta = false;
+            String sql_muni = "SELECT codmuni FROM municipios WHERE codprov ='" + provincia + "'";
+            ejecuta = consulta.execute(sql_muni);
+            if(ejecuta){
+                ResultSet rs = consulta.getResultSet();
+                while(rs.next()){
+                    codMuni.add(rs.getString(1));
+                }           
+            }
+            //Cerramos la conexion con la BD
+            connect.close();
+            
             for(String municipio: codMuni){
+
                 //Creo la url para descargar el Json
                 String url = urlMunicipio.concat(provincia + "/municipios/" + municipio);
                 //Descarga y creacion del json
-                String ficheroMunicipios = ficheroDestino.concat(municipio + ".json");
+                String ficheroMunicipios = ficheroDestino.concat("_" + municipio + ".json");
                 DescargaJson descargar = new DescargaJson(url,ficheroMunicipios);
                 exito=descargar.descarga();
 
@@ -121,9 +129,14 @@ public class DescargaTiempoMunicipio {
 
                     connect.close();
                 }//if exito 
-                
+
             }//for municipio
+            
+            //Vacío el array para volver a rellenarlo con los municipios de la siguiente provincia
+            codMuni.clear(); 
+            
             System.out.println("Provincia: " + provincia + " terminada.");
+            
         }//for provincia
 
         //System.out.println("Filas insertadas: " + filas);
