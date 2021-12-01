@@ -32,15 +32,15 @@ public class Main {
         // PARA PRUEBAS
         String rutaDB = "./db/tiempo.db";
         
-        String jsonTiempoProvincia = "https://www.el-tiempo.net/api/json/v2/provincias/"; //Añadir al final el cod provincia
-        String jsonProvincias = "https://www.el-tiempo.net/api/json/v2/provincias";
-        String jsonMunicipios = "https://www.el-tiempo.net/api/json/v2/municipios";
-        String jsonTiempoMunicipio = "https://www.el-tiempo.net/api/json/v2/provincias/";
+        String urlTiempoProvincia = "https://www.el-tiempo.net/api/json/v2/provincias/"; //Añadir al final el cod provincia
+        String urlProvincias = "https://www.el-tiempo.net/api/json/v2/provincias";
+        String urlMunicipios = "https://www.el-tiempo.net/api/json/v2/municipios";
+        String urlTiempoMunicipio = "https://www.el-tiempo.net/api/json/v2/provincias/"; //Añadir al final el cod provincia + "/municipios"
         
         String ficheroProvincias = "./json/provinciasAPI.json";
         String ficheroMunicipios = "./json/municipiosAPI.json";
         String ficheroTiempoProvincia = "./json/tiempoProvinciaAPI"; //Sin extension para añadir el cod_prov
-        String ficheroTiempoMunicipio = "./json/tiempoMunicipioAPI";
+        String ficheroTiempoMunicipios = "./json/tiempoMunicipioAPI"; //Sin extension para añadir el cod_municipio
         
         int filas = 0;
 
@@ -48,26 +48,28 @@ public class Main {
             System.out.println("Usando BD: " + rutaDB);
             /*
             //Provincias
-            DescargaProvincia p = new DescargaProvincia(rutaDB, jsonProvincias, ficheroProvincias);
+            DescargaProvincia p = new DescargaProvincia(rutaDB, urlProvincias, ficheroProvincias);
             filas = p.guardarProvincias();
-            System.out.println("PROVINCIAS: Se ha descargado de " + jsonProvincias 
+            System.out.println("PROVINCIAS: Se ha descargado de " + urlProvincias 
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
             
             //Municipios
-            DescargaMunicipio m = new DescargaMunicipio(rutaDB,jsonMunicipios,ficheroMunicipios);
+            DescargaMunicipio m = new DescargaMunicipio(rutaDB,urlMunicipios,ficheroMunicipios);
             filas = m.guardarMunicipios();
-            System.out.println("MUNICIPIOS: Se ha descargado de " + jsonMunicipios 
-                    + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
-            */
-            //Tiempo en Provincias
-            DescargaTiempoProvincia tp = new DescargaTiempoProvincia(rutaDB,jsonTiempoProvincia,ficheroTiempoProvincia);
-            filas = tp.guardarTiempoProvincias();
-            System.out.println("Tiempo Provincias: Se ha descargado de " + jsonTiempoProvincia 
+            System.out.println("MUNICIPIOS: Se ha descargado de " + urlMunicipios 
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
             
+            //Tiempo en Provincias
+            DescargaTiempoProvincia tp = new DescargaTiempoProvincia(rutaDB,urlTiempoProvincia,ficheroTiempoProvincia);
+            filas = tp.guardarTiempoProvincias();
+            System.out.println("Tiempo Provincias: Se ha descargado de " + urlTiempoProvincia 
+                    + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
+            */
             //Tiempo en Municipios
-            //DescargaTiempoMunicipio tm = new DescargaTiempoMunicipio(rutaDB,jsonTiempoMunicipio,ficheroTiempoMunicipio);
-            //filas = tm.guardarTiempoMunicipio();
+            DescargaTiempoMunicipio tm = new DescargaTiempoMunicipio(rutaDB,urlTiempoMunicipio,ficheroTiempoMunicipios);
+            filas = tm.guardarTiempoMunicipio();
+            System.out.println("Tiempo Municipios: Se ha descargado de " + urlTiempoMunicipio + "/[MUNICIPIO]"
+                    + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
             
 
         } catch (SQLException e) {

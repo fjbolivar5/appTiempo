@@ -36,7 +36,7 @@ public class DescargaTiempoProvincia {
     /**
      * 
      * @param db ruta de la base de datos SQLite
-     * @param urlJson URL del archivo json con las provincias
+     * @param urlJson URL del archivo json con el tiempo de las provincias
      * @param destino ruta del archivo json de salida
      */
     public DescargaTiempoProvincia(String db,String urlJson, String destino) {
@@ -58,7 +58,7 @@ public class DescargaTiempoProvincia {
         JSONParser parser = new JSONParser();
         int filas = 0;
         boolean exito=false;
-        List<Integer> codProv = new ArrayList<Integer>();
+        List<String> codProv = new ArrayList<String>();
         
         //Es necesario conocer el código de la provincia a descargar
         //Lo extraemos de la BD, de la tabla provincias
@@ -71,12 +71,12 @@ public class DescargaTiempoProvincia {
         if(ejecuta){
             ResultSet rs = consulta.getResultSet();
             while(rs.next()){
-                codProv.add(rs.getInt(1));
+                codProv.add(rs.getString(1));
             }           
         }
         connect.close();
         
-        for(Integer provincia: codProv){
+        for(String provincia: codProv){
             //Creo la url para descargar el Json
             String url = urlProvincias.concat(String.valueOf(provincia));
             //Descarga y creacion del json
@@ -101,7 +101,7 @@ public class DescargaTiempoProvincia {
                     String sql = "INSERT OR REPLACE INTO tiempoProvincia ('codprov','hoy','manana','fecha') "
                             + "VALUES (?, ?, ?, DATE())";
                     PreparedStatement statement = connect.prepareStatement(sql);
-                    statement.setInt(1, provincia);
+                    statement.setString(1, provincia);
                     statement.setString(2, hoy);
                     statement.setString(3, manana);
 

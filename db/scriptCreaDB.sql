@@ -1,5 +1,5 @@
 create table provincias(
-    codprov int primary key not null,
+    codprov varchar(2) primary key not null,
     nombre varchar,
     codauton varchar,
     comunidad varchar,
@@ -7,14 +7,14 @@ create table provincias(
 );
 
 create table municipios(
-    codmuni int primary key not null,
+    codmuni varchar primary key not null,
     nombre varchar,
-    codprov int,
+    codprov varchar(2),
     foreign key(codprov) references provincias(codprov)
 );
 
 create table tiempoMunicipio(
-    codmuni int primary key not null,
+    codmuni varchar primary key not null,
     fecha date,
     minima int,
     maxima int,
@@ -23,7 +23,7 @@ create table tiempoMunicipio(
 );
 
 create table tiempoProvincia(
-    codprov int primary key not null,
+    codprov varchar(2) primary key not null,
     hoy varchar,
     manana varchar,
     fecha date,

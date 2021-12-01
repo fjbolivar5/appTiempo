@@ -82,7 +82,7 @@ public class DescargaProvincia {
                     String sql = "INSERT OR REPLACE INTO provincias ('codprov','nombre','codauton','comunidad','capital') "
                             + "VALUES (?, ?, ?, ?, ?)";
                     PreparedStatement statement = connect.prepareStatement(sql);
-                    statement.setInt(1, Integer.valueOf(cod_prov));
+                    statement.setString(1, cod_prov);
                     statement.setString(2, nombre);
                     statement.setString(3, cod_auton);
                     statement.setString(4,comunidad);

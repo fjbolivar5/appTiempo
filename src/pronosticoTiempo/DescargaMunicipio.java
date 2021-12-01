@@ -92,16 +92,17 @@ public class DescargaMunicipio {
                 while (iterator.hasNext()) {
                     JSONObject municipio = iterator.next();
 
-                    String cod_mun = (String)municipio.get("COD_GEO");
+                    String cod_mun = (String)municipio.get("CODIGOINE");
                     String nombre = (String)municipio.get("NOMBRE");
                     String cod_prov = (String)municipio.get("CODPROV");
+                    cod_mun = cod_mun.substring(0, 5);
 
                     String sql = "INSERT OR REPLACE INTO municipios ('codmuni','nombre','codprov') "
                             + "VALUES (?, ?, ?)";
                     PreparedStatement statement = connect.prepareStatement(sql);
-                    statement.setInt(1, Integer.valueOf(cod_mun));
+                    statement.setString(1, cod_mun);
                     statement.setString(2, nombre);
-                    statement.setInt(3, Integer.valueOf(cod_prov));
+                    statement.setString(3, cod_prov);
 
                     filas += statement.executeUpdate();
                 }

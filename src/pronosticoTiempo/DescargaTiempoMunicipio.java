@@ -8,14 +8,11 @@ import java.sql.PreparedStatement;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +33,7 @@ public class DescargaTiempoMunicipio {
     /**
      * 
      * @param db ruta de la base de datos SQLite
-     * @param urlJson URL del archivo json con las provincias
+     * @param urlJson URL del archivo json con el tiempo de los municipios
      * @param destino ruta del archivo json de salida
      */
     public DescargaTiempoMunicipio(String db,String urlJson, String destino) {
@@ -57,13 +54,11 @@ public class DescargaTiempoMunicipio {
         
         JSONParser parser = new JSONParser();
         int filas = 0;
-        boolean exito=false;
-        List<Integer> codProv = new ArrayList<Integer>();
+        List<String> codProv = new ArrayList<String>();
+        List<String> codMuni = new ArrayList<String>();
 
-        //Es necesario conocer el código de la provincia a descargar
-        //Lo extraemos de la BD, de la tabla provincias
-        //Descargamos todos los datos de todas las provincias y generamos
-        //un solo json con todo
+        //Es necesario conocer el código de la provincia y el código del municipio a descargar
+        //Lo extraemos de la BD, de la tabla provincias y municipios
         connect = DriverManager.getConnection("jdbc:sqlite:" + db); //Conectamos a la bd
         String sql_prov = "SELECT codprov FROM provincias";
         Statement consulta = connect.createStatement();
@@ -71,60 +66,65 @@ public class DescargaTiempoMunicipio {
         if(ejecuta){
             ResultSet rs = consulta.getResultSet();
             while(rs.next()){
-                codProv.add(rs.getInt(1));
+                codProv.add(rs.getString(1));
             }           
         }
+        //Extraemos los codigos de los municipios
+        ejecuta = false;
+        String sql_muni = "SELECT codmuni FROM municipios";
+        ejecuta = consulta.execute(sql_muni);
+        if(ejecuta){
+            ResultSet rs = consulta.getResultSet();
+            while(rs.next()){
+                codMuni.add(rs.getString(1));
+            }           
+        }
+        
+        //Cerramos la conexion con la BD
         connect.close();
 
-        for(Integer provincia: codProv){
-            //Creo la url para descargar el Json
-            String url = urlMunicipio.concat(String.valueOf(provincia) + "/municipios");
-            //Descarga y creacion del json
-            String ficheroProv = ficheroDestino.concat(String.valueOf(provincia)+".json");
-            DescargaJson descargar = new DescargaJson(url,ficheroProv);
-            exito=descargar.descarga();
+        boolean exito=false;
+        for(String provincia: codProv){
             
-            if(exito){
-                Object obj = parser.parse(new FileReader(ficheroProv));
+            for(String municipio: codMuni){
+                //Creo la url para descargar el Json
+                String url = urlMunicipio.concat(provincia + "/municipios/" + municipio);
+                //Descarga y creacion del json
+                String ficheroMunicipios = ficheroDestino.concat(municipio + ".json");
+                DescargaJson descargar = new DescargaJson(url,ficheroMunicipios);
+                exito=descargar.descarga();
+
+                if(exito){
+                    Object obj = parser.parse(new FileReader(ficheroMunicipios));
+
+                    JSONObject jsonObject =  (JSONObject) obj;
+                    titulo = (String) jsonObject.get("title");
+                    JSONObject jsonTemp = (JSONObject) jsonObject.get("temperaturas");
+                    String minima = (String) jsonTemp.get("min");
+                    String maxima = (String) jsonTemp.get("max");
+                    String lluvia=(String) jsonObject.get("lluvia");
+
+                    //Inicio la conexion con la base de datos
+                    connect = DriverManager.getConnection("jdbc:sqlite:"+db);
+                    if(connect!=null){                      
+
+                        String sql = "INSERT OR REPLACE INTO tiempoMunicipio ('codmuni','fecha','minima','maxima', 'lluvia') "
+                                + "VALUES (?, DATE(),?, ?, ?)";
+                        PreparedStatement statement = connect.prepareStatement(sql);
+                        statement.setString(1, municipio);
+                        statement.setString(2, minima);
+                        statement.setString(3, maxima);
+                        statement.setString(4, lluvia);
+
+                        filas += statement.executeUpdate();
+                    }//if connect
+
+                    connect.close();
+                }//if exito 
                 
-                JSONObject jsonObject =  (JSONObject) obj;
-                JSONObject jsonHoy = (JSONObject) jsonObject.get("today");
-                titulo = (String) jsonObject.get("title");
-                String hoy=(String) jsonHoy.get("p");
-                String manana="";
-                
-                /*
-                JSONArray tiempoHoy = (JSONArray) jsonObject.get("today");
-                Iterator<JSONObject> iterator = tiempoHoy.iterator();
-                while (iterator.hasNext()) {
-                    JSONObject p = iterator.next();
-                    hoy = (String)p.get("p");
-                }
-                JSONArray tiempoManana = (JSONArray) jsonObject.get("tomorrow");
-                iterator = tiempoManana.iterator();
-                while (iterator.hasNext()) {
-                    JSONObject p = iterator.next();
-                    manana = (String)p.get("p");
-                }
-                */
-
-                //Inicio la conexion con la base de datos
-                connect = DriverManager.getConnection("jdbc:sqlite:"+db);
-                if(connect!=null){                      
-
-                    String sql = "INSERT OR REPLACE INTO tiempoProvincia ('codprov','hoy','manana','fecha') "
-                            + "VALUES (?, ?, ?, DATE())";
-                    PreparedStatement statement = connect.prepareStatement(sql);
-                    statement.setInt(1, provincia);
-                    statement.setString(2, hoy);
-                    statement.setString(3, manana);
-
-                    filas += statement.executeUpdate();
-                }//if connect
-
-                connect.close();
-            }//if exito 
-        }
+            }//for municipio
+            System.out.println("Provincia: " + provincia + " terminada.");
+        }//for provincia
 
         //System.out.println("Filas insertadas: " + filas);
         return filas;
