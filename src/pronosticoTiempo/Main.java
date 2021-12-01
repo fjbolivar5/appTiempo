@@ -31,11 +31,12 @@ public class Main {
 
         // PARA PRUEBAS
         String rutaDB = "./db/tiempo.db";
-        String jsonNacional = "https://www.el-tiempo.net/api/json/v2/home";
+        String jsonTiempoProvincia = "https://www.el-tiempo.net/api/json/v2/provincias/"; //Añadir al final el cod provincia
         String jsonProvincias = "https://www.el-tiempo.net/api/json/v2/provincias";
         String jsonMunicipios = "https://www.el-tiempo.net/api/json/v2/municipios";
         String ficheroProvincias = "./json/provinciasAPI.json";
         String ficheroMunicipios = "./json/municipiosAPI.json";
+        String ficheroTiempoProvincia = "./json/tiempoProvinciaAPI"; //Sin extension para añadir el cod_prov
         int filas = 0;
 
         try {
@@ -52,6 +53,12 @@ public class Main {
             filas = m.guardarMunicipios();
             System.out.println("MUNICIPIOS: Se ha descargado de " + jsonMunicipios 
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
+            
+            //Tiempo en provincias
+            DescargaTiempoProvincia tp = new DescargaTiempoProvincia(rutaDB,jsonTiempoProvincia,ficheroTiempoProvincia);
+            filas = tp.guardarTiempoProvincias();
+            
+            
 
         } catch (SQLException e) {
             System.out.println("Error SQL: " + e.getMessage());

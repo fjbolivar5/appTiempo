@@ -13,6 +13,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -20,7 +25,7 @@ import org.json.simple.parser.ParseException;
  * @author Fran Bolivar
  */
 
-public class DescargaProvincia {
+public class DescargaTiempoProvincia {
     private String titulo;
     private String db;
     private Connection connect;
@@ -34,7 +39,7 @@ public class DescargaProvincia {
      * @param urlJson URL del archivo json con las provincias
      * @param destino ruta del archivo json de salida
      */
-    public DescargaProvincia(String db,String urlJson, String destino) {
+    public DescargaTiempoProvincia(String db,String urlJson, String destino) {
         this.db = db;
         this.urlProvincias = urlJson;
         this.ficheroDestino = destino;
@@ -47,57 +52,79 @@ public class DescargaProvincia {
      * Extrae la informacion del archivo json dado en el constructor con las provincias
      * @return nº de registros insertados
      */
-    public int guardarProvincias() 
+    public int guardarTiempoProvincias() 
             throws SQLException, FileNotFoundException, IOException, ParseException {
         
         JSONParser parser = new JSONParser();
         int filas = 0;
         boolean exito=false;
+        List<Integer> codProv = new ArrayList<Integer>();
         
-        //Descarga y creacion del json
-        DescargaJson descargar = new DescargaJson(urlProvincias,ficheroDestino);
-        exito=descargar.descarga();
-   
-        if(exito){
-            Object obj = parser.parse(new FileReader(ficheroDestino));
+        //Es necesario conocer el código de la provincia a descargar
+        //Lo extraemos de la BD, de la tabla provincias
+        //Descargamos todos los datos de todas las provincias y generamos
+        //un solo json con todo
+        connect = DriverManager.getConnection("jdbc:sqlite:"+db); //Conectamos a la bd
+        String sql_prov = "SELECT codprov FROM provincias";
+        Statement consulta = connect.createStatement();
+        boolean ejecuta = consulta.execute(sql_prov);
+        if(ejecuta){
+            ResultSet rs = consulta.getResultSet();
+            while(rs.next()){
+                codProv.add(rs.getInt(1));
+            }           
+        }
+        connect.close();
+        
+        for(Integer provincia: codProv){
+            //Creo la url para descargar el Json
+            String url = urlProvincias.concat(String.valueOf(provincia));
+            //Descarga y creacion del json
+            String ficheroProv = ficheroDestino.concat(String.valueOf(provincia)+".json");
+            DescargaJson descargar = new DescargaJson(url,ficheroProv);
+            exito=descargar.descarga();
 
-            JSONObject jsonObject =  (JSONObject) obj;
+            if(exito){
+                Object obj = parser.parse(new FileReader(ficheroProv));
 
-            titulo = (String) jsonObject.get("title");
+                JSONObject jsonObject =  (JSONObject) obj;
 
-            JSONArray provincias = (JSONArray) jsonObject.get("provincias");
-            Iterator<JSONObject> iterator = provincias.iterator();
-            //Inicio la conexion con la base de datos
-            connect = DriverManager.getConnection("jdbc:sqlite:"+db);
-            if(connect!=null){
+                titulo = (String) jsonObject.get("title");
+                String hoy="";
+                String manana="";
+                
+                JSONArray tiempoHoy = (JSONArray) jsonObject.get("today");
+                Iterator<JSONObject> iterator = tiempoHoy.iterator();
                 while (iterator.hasNext()) {
-                    JSONObject provincia = iterator.next();
+                    JSONObject p = iterator.next();
+                    hoy = (String)p.get("p");
+                }
+                JSONArray tiempoManana = (JSONArray) jsonObject.get("tomorrow");
+                iterator = tiempoManana.iterator();
+                while (iterator.hasNext()) {
+                    JSONObject p = iterator.next();
+                    manana = (String)p.get("p");
+                }
+                
+                
+                //Inicio la conexion con la base de datos
+                connect = DriverManager.getConnection("jdbc:sqlite:"+db);
+                if(connect!=null){                      
 
-                    String cod_prov = (String)provincia.get("CODPROV");
-                    String nombre = (String)provincia.get("NOMBRE_PROVINCIA");
-                    String cod_auton = (String)provincia.get("CODAUTON");               
-                    String comunidad = (String)provincia.get("COMUNIDAD_CIUDAD_AUTONOMA");
-                    String capital = (String)provincia.get("CAPITAL_PROVINCIA");
-
-                    String sql = "INSERT OR REPLACE INTO provincias ('codprov','nombre','codauton','comunidad','capital') "
-                            + "VALUES (?, ?, ?, ?, ?)";
+                    String sql = "INSERT OR REPLACE INTO tiempoProvincia ('codprov','hoy','manana','fecha') "
+                            + "VALUES (?, ?, ?, GETDATE())";
                     PreparedStatement statement = connect.prepareStatement(sql);
-                    statement.setInt(1, Integer.valueOf(cod_prov));
-                    statement.setString(2, nombre);
-                    statement.setString(3, cod_auton);
-                    statement.setString(4,comunidad);
-                    statement.setString(5, capital);
-
-                    /* PARA DEPURAR
-                    System.out.printf("Prov: %s - Nombre: %s - Capital: %s - Comunidad: %s - Cod. Com: %s\n", 
-                                        cod_prov,nombre,capital,comunidad,cod_auton);
-                    */
+                    statement.setInt(1, provincia);
+                    statement.setString(2, hoy);
+                    statement.setString(3, manana);
 
                     filas += statement.executeUpdate();
-                }
+                }//if connect
+                
                 connect.close();
-            }//if connect
-        }//if exito
+            }//if exito 
+        }
+          
         //System.out.println("Filas insertadas: " + filas);
         return filas;
     }

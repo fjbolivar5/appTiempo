@@ -94,18 +94,14 @@ public class DescargaMunicipio {
 
                     String cod_mun = (String)municipio.get("COD_GEO");
                     String nombre = (String)municipio.get("NOMBRE");
-                    double longitud = (double)municipio.get("LONGITUD_ETRS89_REGCAN95");               
-                    double latitud = (double)municipio.get("LATITUD_ETRS89_REGCAN95");
                     String cod_prov = (String)municipio.get("CODPROV");
 
-                    String sql = "INSERT OR REPLACE INTO municipios ('codgeo','nombre','longitud','latitud','codprov') "
-                            + "VALUES (?, ?, ?, ?, ?)";
+                    String sql = "INSERT OR REPLACE INTO municipios ('codmuni','nombre','codprov') "
+                            + "VALUES (?, ?, ?)";
                     PreparedStatement statement = connect.prepareStatement(sql);
                     statement.setInt(1, Integer.valueOf(cod_mun));
                     statement.setString(2, nombre);
-                    statement.setDouble(3, longitud);
-                    statement.setDouble(4, latitud);
-                    statement.setInt(5, Integer.valueOf(cod_prov));
+                    statement.setInt(3, Integer.valueOf(cod_prov));
 
                     filas += statement.executeUpdate();
                 }

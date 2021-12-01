@@ -1,5 +1,5 @@
 create table provincias(
-    codprov int primary key,
+    codprov int primary key not null,
     nombre varchar,
     codauton varchar,
     comunidad varchar,
@@ -7,30 +7,26 @@ create table provincias(
 );
 
 create table municipios(
-    codgeo int primary key,
+    codmuni int primary key not null,
     nombre varchar,
-    longitud decimal,
-    latitud decimal,
-    altitud decimal,
     codprov int,
     foreign key(codprov) references provincias(codprov)
 );
 
-create table temperaturas(
-    fecha date primary key,
+create table tiempoMunicipio(
+    codmuni int primary key not null,
+    fecha date,
     minima int,
     maxima int,
-    codgeo int,
-    foreign key(codgeo) references municipios(codgeo)
+    lluvia varchar,
+    foreign key(codmuni) references municipios(codmuni)
 );
 
-create table descripcion_cielo(
-    id int primary key,
-    descripcion varchar
+create table tiempoProvincia(
+    codprov int primary key not null,
+    hoy varchar,
+    manana varchar,
+    fecha date,
+    foreign key (codprov) references provincias(codprov)
 );
 
-create table estado_cielo(
-    fecha date primary key,
-    id int,
-    foreign key(id) references descripcion_cielo(id)
-);
