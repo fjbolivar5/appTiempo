@@ -89,31 +89,17 @@ public class DescargaTiempoProvincia {
 
                 JSONObject jsonObject =  (JSONObject) obj;
                 JSONObject jsonHoy = (JSONObject) jsonObject.get("today");
+                JSONObject jsonManana = (JSONObject) jsonObject.get("tomorrow");
                 titulo = (String) jsonObject.get("title");
                 String hoy=(String) jsonHoy.get("p");
-                String manana="";
-                
-                /*
-                JSONArray tiempoHoy = (JSONArray) jsonObject.get("today");
-                Iterator<JSONObject> iterator = tiempoHoy.iterator();
-                while (iterator.hasNext()) {
-                    JSONObject p = iterator.next();
-                    hoy = (String)p.get("p");
-                }
-                JSONArray tiempoManana = (JSONArray) jsonObject.get("tomorrow");
-                iterator = tiempoManana.iterator();
-                while (iterator.hasNext()) {
-                    JSONObject p = iterator.next();
-                    manana = (String)p.get("p");
-                }
-                */
-                
+                String manana=(String) jsonManana.get("p");
+                 
                 //Inicio la conexion con la base de datos
                 connect = DriverManager.getConnection("jdbc:sqlite:"+db);
                 if(connect!=null){                      
 
                     String sql = "INSERT OR REPLACE INTO tiempoProvincia ('codprov','hoy','manana','fecha') "
-                            + "VALUES (?, ?, ?, GETDATE())";
+                            + "VALUES (?, ?, ?, DATE())";
                     PreparedStatement statement = connect.prepareStatement(sql);
                     statement.setInt(1, provincia);
                     statement.setString(2, hoy);

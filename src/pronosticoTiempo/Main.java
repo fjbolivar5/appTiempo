@@ -57,6 +57,8 @@ public class Main {
             //Tiempo en provincias
             DescargaTiempoProvincia tp = new DescargaTiempoProvincia(rutaDB,jsonTiempoProvincia,ficheroTiempoProvincia);
             filas = tp.guardarTiempoProvincias();
+            System.out.println("Tiempo Provincias: Se ha descargado de " + jsonTiempoProvincia 
+                    + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
             
             
 
