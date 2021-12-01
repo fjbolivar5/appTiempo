@@ -88,11 +88,12 @@ public class DescargaTiempoProvincia {
                 Object obj = parser.parse(new FileReader(ficheroProv));
 
                 JSONObject jsonObject =  (JSONObject) obj;
-
+                JSONObject jsonHoy = (JSONObject) jsonObject.get("today");
                 titulo = (String) jsonObject.get("title");
-                String hoy="";
+                String hoy=(String) jsonHoy.get("p");
                 String manana="";
                 
+                /*
                 JSONArray tiempoHoy = (JSONArray) jsonObject.get("today");
                 Iterator<JSONObject> iterator = tiempoHoy.iterator();
                 while (iterator.hasNext()) {
@@ -105,7 +106,7 @@ public class DescargaTiempoProvincia {
                     JSONObject p = iterator.next();
                     manana = (String)p.get("p");
                 }
-                
+                */
                 
                 //Inicio la conexion con la base de datos
                 connect = DriverManager.getConnection("jdbc:sqlite:"+db);

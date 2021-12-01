@@ -41,7 +41,7 @@ public class Main {
 
         try {
             System.out.println("Usando BD: " + rutaDB);
-
+            /*
             //Provincias
             DescargaProvincia p = new DescargaProvincia(rutaDB, jsonProvincias, ficheroProvincias);
             filas = p.guardarProvincias();
@@ -53,7 +53,7 @@ public class Main {
             filas = m.guardarMunicipios();
             System.out.println("MUNICIPIOS: Se ha descargado de " + jsonMunicipios 
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
-            
+            */
             //Tiempo en provincias
             DescargaTiempoProvincia tp = new DescargaTiempoProvincia(rutaDB,jsonTiempoProvincia,ficheroTiempoProvincia);
             filas = tp.guardarTiempoProvincias();
