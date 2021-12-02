@@ -1,7 +1,6 @@
 package pronosticoTiempo;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.json.simple.parser.ParseException;
@@ -58,13 +57,13 @@ public class Main {
             filas = m.guardarMunicipios();
             System.out.println("MUNICIPIOS: Se ha descargado de " + urlMunicipios 
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
-            
+            */
             //Tiempo en Provincias
             DescargaTiempoProvincia tp = new DescargaTiempoProvincia(rutaDB,urlTiempoProvincia,ficheroTiempoProvincia);
             filas = tp.guardarTiempoProvincias();
             System.out.println("Tiempo Provincias: Se ha descargado de " + urlTiempoProvincia 
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
-            */
+            
             //Tiempo en Municipios
             DescargaTiempoMunicipio tm = new DescargaTiempoMunicipio(rutaDB,urlTiempoMunicipio,ficheroTiempoMunicipios);
             filas = tm.guardarTiempoMunicipio();

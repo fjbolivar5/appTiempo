@@ -83,6 +83,7 @@ public class DescargaTiempoMunicipio {
             connect = DriverManager.getConnection("jdbc:sqlite:" + db); //Conectamos a la bd
             ejecuta = false;
             String sql_muni = "SELECT codmuni FROM municipios WHERE codprov ='" + provincia + "'";
+            consulta = connect.createStatement();
             ejecuta = consulta.execute(sql_muni);
             if(ejecuta){
                 ResultSet rs = consulta.getResultSet();
@@ -138,7 +139,7 @@ public class DescargaTiempoMunicipio {
             System.out.println("Provincia: " + provincia + " terminada.");
             
         }//for provincia
-
+       
         //System.out.println("Filas insertadas: " + filas);
         return filas;
     }
