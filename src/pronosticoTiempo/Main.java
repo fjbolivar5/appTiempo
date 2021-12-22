@@ -29,7 +29,8 @@ public class Main {
          */
 
         // PARA PRUEBAS
-        String rutaDB = "./db/tiempo.db";
+        //String rutaDB = "./db/tiempo.db";
+        String rutaDB = "..\\apirestpy\\tiempo.db";
         
         String urlTiempoProvincia = "https://www.el-tiempo.net/api/json/v2/provincias/"; //Añadir al final el cod provincia
         String urlProvincias = "https://www.el-tiempo.net/api/json/v2/provincias";
@@ -45,7 +46,7 @@ public class Main {
 
         try {
             System.out.println("Usando BD: " + rutaDB);
-            /*
+            
             //Provincias
             DescargaProvincia p = new DescargaProvincia(rutaDB, urlProvincias, ficheroProvincias);
             filas = p.guardarProvincias();
@@ -57,7 +58,7 @@ public class Main {
             filas = m.guardarMunicipios();
             System.out.println("MUNICIPIOS: Se ha descargado de " + urlMunicipios 
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
-            */
+            /*
             //Tiempo en Provincias
             DescargaTiempoProvincia tp = new DescargaTiempoProvincia(rutaDB,urlTiempoProvincia,ficheroTiempoProvincia);
             filas = tp.guardarTiempoProvincias();
@@ -69,7 +70,7 @@ public class Main {
             filas = tm.guardarTiempoMunicipio();
             System.out.println("Tiempo Municipios: Se ha descargado de " + urlTiempoMunicipio + "/[MUNICIPIO]"
                     + "\n e insertado o modificado " + filas + " filas en la BD " + rutaDB);
-            
+            */
 
         } catch (SQLException e) {
             System.out.println("Error SQL: " + e.getMessage());
